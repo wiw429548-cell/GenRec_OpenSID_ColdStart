@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# data (downloaded / generated); split statistics are kept
+data/raw/
+data/processed/*/*
+!data/processed/*/stats.json
+
+# large run artefacts (metrics.json and the small token-rank arrays are kept)
+results/**/best.pt
+results/**/rank_*.npy
+results/**/train.log
+
+# logs
+logs/
+run.log
+nohup.out

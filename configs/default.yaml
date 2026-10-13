@@ -1,0 +1,115 @@
+# =====================================================================
+# OpenSID: global experiment configuration
+# run_all.py reads this file and builds every job from it (see opensid/experiments.py).
+# =====================================================================
+
+seed: 2026
+out_dir: results           # one sub-directory per run: results/<dataset>/<exp_name>/
+time_aware_catalog: true   # recommend only items already released at the time of the interaction (all methods)
+num_workers: 4
+
+datasets:
+  # ---- Amazon Reviews 2023 (5-core ratings + item metadata) ----
+  amazon_industrial:
+    source: amazon
+    category: Industrial_and_Scientific
+    valid_quantile: 0.80     # global temporal split: first 80% of timestamps = training period
+    test_quantile: 0.90      # 80%-90% validation period, 90%-100% test period
+  amazon_musical:
+    source: amazon
+    category: Musical_Instruments
+    valid_quantile: 0.80
+    test_quantile: 0.90
+  amazon_videogames:
+    source: amazon
+    category: Video_Games
+    valid_quantile: 0.80
+    test_quantile: 0.90
+  # ---- the same data under the leave-one-out protocol of prior work (new items are rare here)
+  amazon_industrial_loo:
+    source: amazon
+    category: Industrial_and_Scientific
+    split: loo
+    valid_quantile: 0.80
+    test_quantile: 0.90
+  # ---- MIND-small news (most test targets are new articles) ----
+  mind:
+    source: mind
+    valid_quantile: 0.70     # quantiles are computed on time-stamped clicks only
+    test_quantile: 0.85
+    max_train_samples: 1500000
+
+preprocess:
+  max_hist_len: 20           # at most 20 history items per input
+  max_test_samples: 30000    # test / validation targets are uniformly subsampled (fixed seed)
+  max_valid_samples: 10000
+  max_text_chars: 1200
+
+embedding:
+  model: sentence-transformers/sentence-t5-base   # as in TIGER
+  batch_size: 256
+
+tokenizer:                    # RQ-VAE
+  levels: 3
+  codebook_size: 256
+  latent_dim: 32
+  hidden_dims: [512, 256, 128]
+  beta: 0.25                  # commitment weight
+  epochs: 300
+  batch_size: 1024
+  lr: 0.001
+  fit_on: train_items         # codebooks are fitted on training-period items; new items are quantized with them
+
+gen_model:                    # TIGER-size encoder-decoder
+  backbone: t5
+  d_model: 128
+  d_ff: 1024
+  num_layers: 4
+  num_heads: 6
+  d_kv: 64
+  dropout: 0.1
+  batch_size: 256
+  lr: 0.001
+  weight_decay: 0.01
+  warmup_steps: 1000
+  max_steps: 40000
+  eval_every: 2000
+  patience: 5                 # early stopping on validation NDCG@10
+  beam_size: 50
+  eval_batch_size: 128
+
+opensid:
+  cate_delta_l2: 0.0001       # L2 penalty on the token residuals Delta (CATE)
+  cpm_rho_max: 0.2            # maximum fraction of masked prefixes (CPM)
+  cpm_warmup_frac: 0.3        # rho grows linearly from 0 to rho_max over the first 30% of the steps
+  ccd_beta_grid: [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 16.0, 32.0, 64.0]   # CCD rescoring weight
+  ccd_quota_grid: [0, 5, 10, 20]   # beam slots reserved for prefixes without training support
+
+seq_baseline:                 # SASRec / TextSASRec
+  d_model: 128
+  num_layers: 2
+  num_heads: 2
+  dropout: 0.2
+  batch_size: 256
+  lr: 0.001
+  max_steps: 30000
+  eval_every: 2000
+  patience: 5
+
+backbones:                    # backbone generality
+  gpt:
+    backbone: gpt
+    d_model: 256
+    num_layers: 4
+    num_heads: 4
+  qwen:
+    backbone: hf
+    hf_name: Qwen/Qwen2.5-0.5B
+    batch_size: 64
+    lr: 0.0001
+    max_steps: 8000
+    eval_every: 1000
+    bf16: true
+
+metrics:
+  ks: [5, 10, 20]

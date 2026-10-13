@@ -1,0 +1,10 @@
+{
+  "train": 1500000,
+  "valid": 10000,
+  "test": 30000,
+  "valid_cold_frac": 0.2095,
+  "test_cold_frac": 0.6075333333333334,
+  "users": 93454,
+  "items": 52883,
+  "warm_items": 51684
+}

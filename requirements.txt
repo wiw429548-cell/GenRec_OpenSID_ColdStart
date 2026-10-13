@@ -1,0 +1,12 @@
+torch>=2.1
+transformers>=4.51
+sentence-transformers>=3.0
+numpy
+scipy
+pyyaml
+scikit-learn
+matplotlib
+tqdm
+accelerate
+sentencepiece
+protobuf

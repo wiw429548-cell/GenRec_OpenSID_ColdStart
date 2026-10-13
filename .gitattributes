@@ -1,0 +1,12 @@
+# Store every text file with LF line endings, on every operating system.
+* text=auto eol=lf
+
+*.py    text eol=lf
+*.md    text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+*.txt   text eol=lf
+
+*.png   binary
+*.pdf   binary
+*.npy   binary
