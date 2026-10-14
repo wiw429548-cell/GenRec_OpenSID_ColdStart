@@ -200,16 +200,6 @@ data/processed/<dataset>/   split statistics
 assets/                     figures
 ```
 
-## Citation
-
-```bibtex
-@inproceedings{opensid2027,
-  title     = {Reaching the Future Catalog: Locating and Repairing New-Item Loss in Semantic-ID Recommenders},
-  author    = {Anonymous},
-  booktitle = {Under review},
-  year      = {2027}
-}
-```
 
 ## License
 
